@@ -611,25 +611,38 @@ ul {
 .clock__center {
   position: absolute;
   inset: 0;
-  display: grid;
-  grid-template-rows: 1fr auto 1fr;
-  place-items: center;
+  /* Anchor child positioning to the ring center */
+  display: block;
   text-align: center;
   padding: 18px;
+  pointer-events: none;
+}
+
+/* Keep label/time centered regardless of label height */
+.clock__center > * {
+  pointer-events: auto;
 }
 
 .clock__label {
-  align-self: end;
-  margin-top: 8px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, calc(-50% - 34px));
   font-size: 13px;
   letter-spacing: 0.02em;
   text-transform: uppercase;
 }
 
 .clock__time {
-  align-self: center;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: block;
+  line-height: 1;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.06em;
+  /* Slightly lower letter-spacing to avoid "optical" horizontal drift */
+  letter-spacing: 0.04em;
   font-size: 38px;
   font-weight: 700;
 }
