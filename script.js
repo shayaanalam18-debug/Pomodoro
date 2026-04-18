@@ -1,19 +1,3 @@
-/**
- * script.js
- *
- * Responsibilities:
- * - Tabs: accessible top navigation (click + keyboard)
- * - Pomodoro: one shared timer state with two display modes (Text / Clock)
- * - Progress: interactive, animated charts (Week / Month)
- *
- * Notes:
- * - Pomodoro uses an absolute `endAt` timestamp for better accuracy vs decrementing counters.
- * - Progress charts are implemented without external libraries.
- *
- * Debug logs: `console.log("[pomo:debug]", …)` on init, tab/timer/progress flows, and chart renders.
- * Intentionally omitted on hot paths (timer tick, hover tooltips, scroll/resize, tight SVG loops) to avoid console flooding.
- */
-
 function setActiveTab(nextTabEl) {
   console.log("[pomo:debug] setActiveTab", { tab: nextTabEl?.dataset?.tab });
   const tabs = Array.from(document.querySelectorAll('[role="tab"]'));
@@ -314,7 +298,7 @@ function initPomodoro() {
     console.log("[pomo:debug] initPomodoro.playSelectedSounds", { soundKeys });
     const keys = Array.isArray(soundKeys) ? soundKeys : [];
     if (!keys.length) return;
-    // Play in order (with small offsets) so multiple selections feel intentional.
+    // Staggered playback when multiple sounds are selected.
     let delay = 0;
     for (const key of keys) {
       setTimeout(() => playSoundPreset(key), delay);
@@ -434,7 +418,7 @@ function initPomodoro() {
     if (tickId) {
       stopAll();
     } else {
-      // If the user presses Start while we're in done, restart from the beginning.
+      // If phase is "done", Start restarts from the first focus block.
       if (phase === "done") {
         focusCompletedCount = 0;
         setPhase("focus");

@@ -3,7 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0b1020" />
     <title>Pomodoro — Tracker App</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -82,7 +84,22 @@
             >
               Resources
             </button>
+            <button
+              class="tabs__tab"
+              type="button"
+              role="tab"
+              id="tab-settings"
+              aria-controls="panel-settings"
+              aria-selected="false"
+              tabindex="-1"
+              data-tab="settings"
+            >
+              Settings
+            </button>
           </div>
+          <button class="btn btn--compact" type="button" data-action="startFocusing" id="start-focusing-sticky">
+            Start Focusing
+          </button>
         </nav>
       </div>
     </header>
@@ -359,7 +376,32 @@
 
             <div class="timer timer--clock" data-display="clock" hidden>
               <div class="clock" aria-label="Progress clock">
-                <div class="clock__ring" aria-hidden="true"></div>
+                <div class="clock__ring" aria-hidden="true">
+                  <svg class="clock__svg" viewBox="0 0 220 220" width="220" height="220" focusable="false">
+                    <circle class="clock__disc" cx="110" cy="110" r="78" />
+                    <g transform="rotate(-90 110 110)">
+                      <circle
+                        class="clock__track"
+                        cx="110"
+                        cy="110"
+                        r="92"
+                        fill="none"
+                        stroke="rgba(255, 255, 255, 0.1)"
+                        stroke-width="10"
+                      />
+                      <circle
+                        id="pomo-ring-progress"
+                        class="clock__progress"
+                        cx="110"
+                        cy="110"
+                        r="92"
+                        fill="none"
+                        stroke-width="10"
+                        stroke-linecap="round"
+                      />
+                    </g>
+                  </svg>
+                </div>
                 <div class="clock__center" aria-live="polite">
                   <div class="clock__label muted" id="pomo-task-label-clock">Focus</div>
                   <div id="pomo-time-clock" class="clock__time">25:00</div>
@@ -430,21 +472,25 @@
         data-panel="progress"
       >
         <h1>Progress Tracker</h1>
-        <p class="muted">
-          Interactive charts with smooth animations. Hover points/bars for details.
-        </p>
 
         <div class="progress__header">
-          <div class="seg" role="group" aria-label="Progress range">
-            <label class="seg__option">
-              <input class="seg__input" type="radio" name="progressRange" value="week" checked />
-              <span class="seg__label">Week</span>
-            </label>
-            <label class="seg__option">
-              <input class="seg__input" type="radio" name="progressRange" value="month" />
-              <span class="seg__label">Month</span>
+          <div class="progress__headerLeft">
+            <div class="seg" role="group" aria-label="Progress range">
+              <label class="seg__option">
+                <input class="seg__input" type="radio" name="progressRange" value="week" checked />
+                <span class="seg__label">Week</span>
+              </label>
+              <label class="seg__option">
+                <input class="seg__input" type="radio" name="progressRange" value="month" />
+                <span class="seg__label">Month</span>
+              </label>
+            </div>
+            <label class="toggle progress__demoToggle">
+              <input id="progress-show-demo" class="toggle__input" type="checkbox" />
+              <span class="toggle__label">Show example data</span>
             </label>
           </div>
+          <div class="progress__note muted small" id="progress-note" aria-live="polite"></div>
         </div>
 
         <div class="progress__kpis">
@@ -506,6 +552,66 @@
         </div>
 
         <div class="tooltip" id="progress-tooltip" role="status" aria-live="polite" hidden></div>
+      </section>
+
+      <section
+        class="panel"
+        role="tabpanel"
+        id="panel-settings"
+        aria-labelledby="tab-settings"
+        tabindex="0"
+        hidden
+        data-panel="settings"
+      >
+        <h1>Settings</h1>
+        <div class="card">
+          <h2>Personalization</h2>
+          <div class="session-form" aria-label="Settings">
+            <label class="field">
+              <div class="field__label">Your name</div>
+              <input
+                id="settings-name"
+                class="field__input"
+                type="text"
+                inputmode="text"
+                autocomplete="off"
+                placeholder="Enter your name…"
+                maxlength="24"
+              />
+            </label>
+            <div class="actions">
+              <button class="btn" type="button" data-action="saveName">Save</button>
+              <button class="btn btn--ghost" type="button" data-action="clearName">Clear</button>
+            </div>
+            <div class="muted small" id="settings-name-status" aria-live="polite"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Data</h2>
+          <p class="muted small settings__privacy">
+            Sessions and settings stay on this device only; nothing is uploaded to a server.
+          </p>
+          <p class="muted">Export a backup or import a JSON file you exported earlier. Import replaces current session logs.</p>
+          <div class="actions">
+            <button class="btn btn--ghost" type="button" data-action="exportLogs">
+              Export logs (JSON)
+            </button>
+            <button class="btn btn--ghost" type="button" data-action="importLogs">
+              Import logs (JSON)
+            </button>
+            <button class="btn btn--ghost" type="button" data-action="resetAll">
+              Reset all data
+            </button>
+          </div>
+          <input
+            id="settings-import-logs"
+            type="file"
+            accept=".json,application/json"
+            hidden
+          />
+          <div class="muted small" id="settings-data-status" aria-live="polite"></div>
+        </div>
       </section>
 
       <section
@@ -621,7 +727,12 @@
       </section>
     </main>
 
-    <script src="./script.js"></script>
+    <script src="./script-modal.js"></script>
+    <script src="./script-tabs.js"></script>
+    <script src="./script-pomodoro.js"></script>
+    <script src="./script-progress.js"></script>
+    <script src="./script-settings.js"></script>
+    <script src="./script-main.js"></script>
   </body>
 </html>
  
